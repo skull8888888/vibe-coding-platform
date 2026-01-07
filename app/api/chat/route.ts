@@ -1,0 +1,109 @@
+import { type ChatUIMessage } from '@/components/chat/types'
+import { observe, getTracer, Laminar, wrapAISDK } from '@lmnr-ai/lmnr'
+import {
+  convertToModelMessages,
+  createUIMessageStream,
+  createUIMessageStreamResponse,
+  stepCountIs,
+  streamText,
+} from 'ai'
+import { DEFAULT_MODEL } from '@/ai/constants'
+import { NextResponse } from 'next/server'
+import { getAvailableModels, getModelOptions } from '@/ai/gateway'
+import { checkBotId } from 'botid/server'
+import { tools } from '@/ai/tools'
+import prompt from './prompt.md'
+
+interface BodyData {
+  messages: ChatUIMessage[]
+  modelId?: string
+  reasoningEffort?: 'low' | 'medium'
+}
+
+Laminar.initialize({
+  projectApiKey: '6NxlZqRZcH7pTSC56S6z8g1AZVtKA9uyVz6u2tEqTJQ23dXHBaWYTKSbxL6HF59x',
+  // baseUrl: "http://localhost",
+  // httpPort: 8000,
+  // grpcPort: 8001,
+  // disableBatch: true,
+});
+
+export const generateStream = observe({
+  name: 'generateStream',
+  rolloutEntrypoint: true,
+}, async (messages: ChatUIMessage[], model: { id: string, name: string }, modelId: string, reasoningEffort: 'low' | 'medium' | undefined) => {
+  return createUIMessageStreamResponse({
+    stream: createUIMessageStream({
+      originalMessages: messages,
+      execute: async ({ writer }) => {
+        const result = streamText({
+          ...getModelOptions(modelId, { reasoningEffort }),
+          system: prompt,
+          messages: await convertToModelMessages(
+            messages.map((message) => {
+              message.parts = message.parts.map((part) => {
+                if (part.type === 'data-report-errors') {
+                  return {
+                    type: 'text',
+                    text:
+                      `There are errors in the generated code. This is the summary of the errors we have:\n` +
+                      `\`\`\`${part.data.summary}\`\`\`\n` +
+                      (part.data.paths?.length
+                        ? `The following files may contain errors:\n` +
+                          `\`\`\`${part.data.paths?.join('\n')}\`\`\`\n`
+                        : '') +
+                      `Fix the errors reported.`,
+                  }
+                }
+                return part
+              })
+              return message
+            })
+          ),
+          stopWhen: stepCountIs(20),
+          tools: tools({ modelId, writer }),
+          onError: (error) => {
+            console.error('Error communicating with AI')
+            console.error(JSON.stringify(error, null, 2))
+          },
+          experimental_telemetry: {
+            isEnabled: true,
+            tracer: getTracer(),
+          }
+        })
+        result.consumeStream()
+        writer.merge(
+          result.toUIMessageStream({
+            sendReasoning: true,
+            sendStart: false,
+            messageMetadata: () => ({
+              model: model.name,
+            }),
+          })
+        )
+      },
+    }),
+  });
+})
+
+export async function POST(req: Request) {
+  const checkResult = await checkBotId()
+  if (checkResult.isBot) {
+    return NextResponse.json({ error: `Bot detected` }, { status: 403 })
+  }
+
+  const [models, { messages, modelId = DEFAULT_MODEL, reasoningEffort }] =
+    await Promise.all([getAvailableModels(), req.json() as Promise<BodyData>])
+
+  const model = models.find((model) => model.id === modelId)
+  if (!model) {
+    return NextResponse.json(
+      { error: `Model ${modelId} not found.` },
+      { status: 400 }
+    )
+  }
+
+  return generateStream(messages, model, modelId, reasoningEffort)
+}
+
+
