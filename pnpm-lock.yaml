@@ -25,7 +25,7 @@ importers:
         version: 2.0.0-beta.60(zod@3.25.76)
       '@lmnr-ai/lmnr':
         specifier: lmnr-ai/lmnr-ts#cache-llms
-        version: https://codeload.github.com/lmnr-ai/lmnr-ts/tar.gz/6b880393db6be31dd4098b9608d98c410146273a
+        version: https://codeload.github.com/lmnr-ai/lmnr-ts/tar.gz/629723b7dfe1797ff5ef85eb16c483d4ce549c28
       '@radix-ui/react-checkbox':
         specifier: 1.3.3
         version: 1.3.3(@types/react-dom@19.1.7(@types/react@19.1.9))(@types/react@19.1.9)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -661,8 +661,8 @@ packages:
     resolution: {integrity: sha512-4vei+TX0WsXf8iamfeUDlnH4mEXtZhvvRC5FGYTDv38S6KYFj/thH09aDv8GTKTTJfb/+C1WaMdaD6488qCBqQ==}
     engines: {node: '>=18.0.0'}
 
-  '@lmnr-ai/lmnr@https://codeload.github.com/lmnr-ai/lmnr-ts/tar.gz/6b880393db6be31dd4098b9608d98c410146273a':
-    resolution: {tarball: https://codeload.github.com/lmnr-ai/lmnr-ts/tar.gz/6b880393db6be31dd4098b9608d98c410146273a}
+  '@lmnr-ai/lmnr@https://codeload.github.com/lmnr-ai/lmnr-ts/tar.gz/629723b7dfe1797ff5ef85eb16c483d4ce549c28':
+    resolution: {tarball: https://codeload.github.com/lmnr-ai/lmnr-ts/tar.gz/629723b7dfe1797ff5ef85eb16c483d4ce549c28}
     version: 0.8.0-alpha.1
     hasBin: true
 
@@ -4025,7 +4025,7 @@ snapshots:
       '@lmnr-ai/claude-code-proxy-linux-x64-musl': 0.1.4
       '@lmnr-ai/claude-code-proxy-win32-x64-msvc': 0.1.4
 
-  '@lmnr-ai/lmnr@https://codeload.github.com/lmnr-ai/lmnr-ts/tar.gz/6b880393db6be31dd4098b9608d98c410146273a':
+  '@lmnr-ai/lmnr@https://codeload.github.com/lmnr-ai/lmnr-ts/tar.gz/629723b7dfe1797ff5ef85eb16c483d4ce549c28':
     dependencies:
       '@grpc/grpc-js': 1.14.3
       '@lmnr-ai/claude-code-proxy': 0.1.5

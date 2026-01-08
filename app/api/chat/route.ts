@@ -20,13 +20,6 @@ interface BodyData {
   reasoningEffort?: 'low' | 'medium'
 }
 
-Laminar.initialize({
-  projectApiKey: '6NxlZqRZcH7pTSC56S6z8g1AZVtKA9uyVz6u2tEqTJQ23dXHBaWYTKSbxL6HF59x',
-  // baseUrl: "http://localhost",
-  // httpPort: 8000,
-  // grpcPort: 8001,
-  // disableBatch: true,
-});
 
 export const generateStream = observe({
   name: 'generateStream',

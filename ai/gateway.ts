@@ -2,6 +2,7 @@ import { createGatewayProvider } from '@ai-sdk/gateway'
 import { Models } from './constants'
 import type { JSONValue } from 'ai'
 import type { OpenAIResponsesProviderOptions } from '@ai-sdk/openai'
+import { openai } from '@ai-sdk/openai'
 import type { LanguageModelV3 } from '@ai-sdk/provider'
 import { wrapLanguageModel } from '@lmnr-ai/lmnr'
 
@@ -24,13 +25,11 @@ export function getModelOptions(
   const gateway = gatewayInstance()
   if (modelId === Models.OpenAIGPT52) {
     return {
-      model: wrapLanguageModel(gateway(modelId)),
+      model: wrapLanguageModel(openai(modelId.replace('openai/', ''))),
       providerOptions: {
         openai: {
           include: ['reasoning.encrypted_content'],
           reasoningEffort: options?.reasoningEffort ?? 'low',
-          reasoningSummary: 'auto',
-          serviceTier: 'priority',
         } satisfies OpenAIResponsesProviderOptions,
       },
     }
@@ -41,7 +40,7 @@ export function getModelOptions(
     modelId === Models.AnthropicClaude45Sonnet
   ) {
     return {
-      model: gateway(modelId),
+      model: wrapLanguageModel(gateway(modelId)),
       headers: { 'anthropic-beta': 'fine-grained-tool-streaming-2025-05-14' },
       providerOptions: {
         anthropic: {
@@ -52,7 +51,7 @@ export function getModelOptions(
   }
 
   return {
-    model: gateway(modelId),
+    model: wrapLanguageModel(gateway(modelId)),
   }
 }
 
