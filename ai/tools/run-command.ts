@@ -77,7 +77,6 @@ export const runCommand = ({ writer }: Params) =>
       let cmd: Command | null = null
 
       try {
-        console.log("running detached command")
         cmd = await sandbox.runCommand({
           detached: true,
           cmd: command,
